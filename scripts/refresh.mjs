@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * Auto-refresh Real Madrid World Cup 2026 goal data.
- * Runs in GitHub Actions on a schedule. No API key required.
+ * Auto-refresh Real Madrid World Cup 2026 goal data — ACCURATE source.
  *
- * Source: TheSportsDB free API (FIFA World Cup, league 4429, season 2026).
- *  - eventsday.php  -> list matches per day (scores + status)
- *  - lookuptimeline.php -> per-match goal events with scorer names
+ * Source: football-data.org  (https://www.football-data.org)
+ *   GET /v4/competitions/WC/scorers?limit=100  ->  exact goal totals per player.
+ * Requires a free API token in the FOOTBALL_DATA_TOKEN environment variable
+ * (set as a GitHub Actions secret). Get one free at football-data.org/client/register.
  *
- * It tallies goals for a fixed list of current & former Real Madrid players,
- * then writes data.json. On any failure it leaves the existing data.json
- * untouched (graceful degradation — the site never breaks or zeroes out).
+ * It matches the tournament's scorers against a fixed list of current & former
+ * Real Madrid players and writes data.json. On any failure (no token, API error,
+ * empty result) it leaves the existing data.json untouched — the site never breaks.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -18,13 +18,10 @@ import { dirname, join } from "node:path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_PATH = join(__dirname, "..", "data.json");
 
-const API = "https://www.thesportsdb.com/api/v1/json/3/";
-const LEAGUE = "4429";              // FIFA World Cup
-const SEASON = "2026";
-const START = "2026-06-11";         // tournament kickoff
-const END   = "2026-07-19";         // final
+const TOKEN = process.env.FOOTBALL_DATA_TOKEN;
+const API = "https://api.football-data.org/v4/competitions/WC/scorers?limit=100";
 
-/* ---- Roster (source of truth). Goals are filled in from the live feed. ---- */
+/* ---- Roster (source of truth). Goals are filled in from the feed. ---- */
 const CURRENT = [
   { name: "Kylian Mbappé",       country: "France",  code: "fr",     pos: "FW" },
   { name: "Vinícius Júnior",     country: "Brazil",  code: "br",     pos: "FW" },
@@ -46,147 +43,100 @@ const FORMER = [
   { name: "Martin Ødegaard",   country: "Norway",   code: "no" },
 ];
 
-/* Nation aliases so feed team names match our roster countries. */
+/* feed team names -> our roster country */
 const NATION_ALIASES = {
-  "turkey": ["turkey", "türkiye", "turkiye"],
-  "south korea": ["south korea", "korea republic", "korea"],
+  "turkey": ["turkey", "turkiye", "türkiye"],
+  "england": ["england"],
 };
 const norm = (s) =>
   (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
-const surname = (s) => norm(s).split(" ").pop();
+const tokens = (s) => norm(s).split(" ").filter(Boolean);
+const surname = (s) => { const t = tokens(s); return t[t.length - 1] || ""; };
 
-/* Resolve a roster player's goals from the tallied feed data.
-   Exact normalized full-name match first, then surname fallback. */
-function goalsForPlayer(p, goalsByPlayer, detailByPlayer = {}) {
-  const k = norm(p.name);
-  if (goalsByPlayer[k] != null) return { g: goalsByPlayer[k], d: detailByPlayer[k] || [] };
+function teamMatches(rosterCountry, feedTeam) {
+  const c = norm(rosterCountry), f = norm(feedTeam);
+  const aliases = NATION_ALIASES[c] || [c];
+  return aliases.some((a) => f === a || f.includes(a) || a.includes(f));
+}
+
+/* Resolve a roster player's goals from the feed's scorer list. */
+function goalsForPlayer(p, scorers) {
   const sn = surname(p.name);
-  let g = 0, d = [];
-  for (const key of Object.keys(goalsByPlayer)) {
-    if (key.split(" ").pop() === sn) { g += goalsByPlayer[key]; d = d.concat(detailByPlayer[key] || []); }
+  const rosterTokens = tokens(p.name);
+  let goals = 0, matched = false;
+  for (const s of scorers) {
+    const apiTokens = tokens(s.player && s.player.name);
+    if (!apiTokens.length) continue;
+    const teamOk = teamMatches(p.country, (s.team && s.team.name) || "");
+    if (!teamOk) continue;
+    const surnameOk = apiTokens.includes(sn);
+    const allTokensOk = rosterTokens.every((t) => apiTokens.includes(t));
+    if (surnameOk || allTokensOk) { goals += Number(s.goals || 0); matched = true; }
   }
-  return { g, d };
+  return { goals, matched };
 }
 
-const ROSTER = [...CURRENT, ...FORMER];
-const ROSTER_NATIONS = new Set();
-ROSTER.forEach((p) => {
-  const base = norm(p.country);
-  (NATION_ALIASES[base] || [base]).forEach((a) => ROSTER_NATIONS.add(norm(a)));
-});
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-async function getJSON(url, tries = 3) {
-  for (let i = 0; i < tries; i++) {
-    try {
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 25000);
-      const res = await fetch(url, { signal: ctrl.signal, headers: { "User-Agent": "rm-wc-tracker" } });
-      clearTimeout(t);
-      if (res.ok) return await res.json();
-    } catch (_) { /* retry */ }
-    await sleep(1500 * (i + 1));
-  }
-  return null;
+async function getScorers() {
+  if (!TOKEN) throw new Error("FOOTBALL_DATA_TOKEN is not set");
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 25000);
+  const res = await fetch(API, { signal: ctrl.signal, headers: { "X-Auth-Token": TOKEN } });
+  clearTimeout(t);
+  if (!res.ok) throw new Error("football-data.org returned HTTP " + res.status);
+  const j = await res.json();
+  if (!Array.isArray(j.scorers)) throw new Error("unexpected response shape");
+  return j.scorers;
 }
 
-function datesInRange(start, end) {
-  const out = [];
-  const today = new Date();
-  let d = new Date(start + "T00:00:00Z");
-  const last = new Date(Math.min(new Date(end + "T00:00:00Z").getTime(), today.getTime()));
-  while (d <= last) {
-    out.push(d.toISOString().slice(0, 10));
-    d = new Date(d.getTime() + 86400000);
-  }
-  return out;
-}
-
-function involvesRoster(e) {
-  return ROSTER_NATIONS.has(norm(e.strHomeTeam)) || ROSTER_NATIONS.has(norm(e.strAwayTeam));
-}
-function isFinished(e) {
-  return e.strStatus === "FT" || e.strStatus === "Match Finished" ||
-    (e.intHomeScore != null && e.intHomeScore !== "" && e.intAwayScore != null && e.intAwayScore !== "");
+function build(arr, withPos, scorers) {
+  return arr.map((p) => {
+    const { goals } = goalsForPlayer(p, scorers);
+    const row = { name: p.name, country: p.country, code: p.code, goals };
+    if (withPos) row.pos = p.pos;
+    row.detail = "";
+    return row;
+  });
 }
 
 async function main() {
-  // 1) collect all WC matches day by day
-  const events = [];
-  const seen = new Set();
-  for (const day of datesInRange(START, END)) {
-    const j = await getJSON(`${API}eventsday.php?d=${day}&l=${LEAGUE}`);
-    if (j && Array.isArray(j.events)) {
-      for (const e of j.events) {
-        if (e && e.idEvent && !seen.has(e.idEvent)) { seen.add(e.idEvent); events.push(e); }
-      }
-    }
-    await sleep(250);
-  }
-  if (events.length === 0) {
-    console.error("No events returned from feed — keeping existing data.json.");
+  let scorers;
+  try {
+    scorers = await getScorers();
+  } catch (err) {
+    console.error("Could not fetch scorers — keeping existing data.json:", err.message);
     process.exit(0);
   }
-
-  // 2) finished matches involving a Real Madrid nation
-  const matches = events.filter((e) => isFinished(e) && involvesRoster(e));
-  console.log(`Found ${events.length} WC events, ${matches.length} relevant finished matches.`);
-
-  // 3) tally goals from each match timeline
-  const goalsByPlayer = {};   // normName -> count
-  const detailByPlayer = {};  // normName -> [ "vs X 66'" ]
-  for (const e of matches) {
-    const opp = (t) => (norm(e.strHomeTeam) === norm(t) ? e.strAwayTeam : e.strHomeTeam);
-    const tl = await getJSON(`${API}lookuptimeline.php?id=${e.idEvent}`);
-    await sleep(250);
-    if (!tl || !Array.isArray(tl.timeline)) continue;
-    for (const ev of tl.timeline) {
-      if (ev.strTimeline === "Goal" && ev.strTimelineDetail !== "Own Goal" && ev.strPlayer) {
-        const k = norm(ev.strPlayer);
-        goalsByPlayer[k] = (goalsByPlayer[k] || 0) + 1;
-        (detailByPlayer[k] = detailByPlayer[k] || []).push(`vs ${opp(ev.strTeam)} ${ev.intTime || "?"}'`);
-      }
-    }
-  }
-
-  // 4) assign goals to roster (exact normalized name, else surname match)
-  const build = (arr, withPos) => arr.map((p) => {
-    const { g, d } = goalsForPlayer(p, goalsByPlayer, detailByPlayer);
-    const row = { name: p.name, country: p.country, code: p.code, goals: g };
-    if (withPos) row.pos = p.pos;
-    row.detail = g > 0 ? d.join(", ") : "";
-    return row;
-  });
+  console.log(`Fetched ${scorers.length} tournament scorers.`);
 
   const out = {
     asOf: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
     stage: "Auto-updated",
     updated: new Date().toISOString(),
-    current: build(CURRENT, true),
-    former: build(FORMER, false),
+    current: build(CURRENT, true, scorers),
+    former: build(FORMER, false, scorers),
   };
 
-  // 5) sanity guard: don't publish an all-zero wipe if we clearly failed to read timelines
   const total = out.current.reduce((s, p) => s + p.goals, 0) + out.former.reduce((s, p) => s + p.goals, 0);
+
+  // Guard: if the feed gave us scorers but none matched our roster, that's suspicious
+  // (e.g. a naming/competition mismatch). Keep the last good data rather than zeroing out.
   let prevTotal = -1;
   try {
     const prev = JSON.parse(readFileSync(DATA_PATH, "utf8"));
-    prevTotal = [...(prev.current || []), ...(prev.former || [])].reduce((s, p) => s + (+p.goals || 0), 0);
+    prevTotal = [...(prev.current || []), ...(prev.former || [])].reduce((s, p) => s + (Number(p.goals) || 0), 0);
   } catch (_) {}
-  if (total === 0 && prevTotal > 0 && matches.length > 0) {
-    console.error("Tally came back empty but matches existed — keeping existing data.json.");
+  if (total === 0 && scorers.length > 0 && prevTotal > 0) {
+    console.error("No roster matches in a non-empty scorer list — keeping existing data.json.");
     process.exit(0);
   }
 
   writeFileSync(DATA_PATH, JSON.stringify(out, null, 2) + "\n");
-  console.log(`Wrote data.json — total goals: ${total} (was ${prevTotal}).`);
+  console.log(`Wrote data.json — Real Madrid total: ${total} (was ${prevTotal}).`);
 }
 
-/* Run only when invoked directly (so the helpers can be unit-tested on import). */
 const invokedDirectly = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (invokedDirectly) {
   main().catch((err) => { console.error("Refresh failed:", err); process.exit(0); });
 }
 
-export { norm, surname, goalsForPlayer, CURRENT, FORMER };
+export { norm, surname, tokens, goalsForPlayer, teamMatches, CURRENT, FORMER };
