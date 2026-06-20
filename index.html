@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Madrid at the 2026 World Cup — Goal Tracker</title>
+<meta name="description" content="Live tracker of every goal scored by current and former Real Madrid players at the FIFA World Cup 2026.">
+<meta property="og:title" content="Real Madrid at the 2026 World Cup — Goal Tracker">
+<meta property="og:description" content="Every goal scored by current and former Real Madrid players at the FIFA World Cup 2026.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --navy:#0a1631;--navy-2:#10224a;--gold:#febe10;--gold-deep:#c9961a;
+    --ink:#0c1424;--muted:#6b7385;--line:#e8eaf2;--bg:#f4f6fb;--card:#fff;--good:#1d9e75;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px 80px}
+  header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;border-bottom:4px solid var(--gold)}
+  .head-inner{max-width:920px;margin:0 auto;padding:34px 20px 30px}
+  .crest{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff,#dfe6f5);color:var(--navy);font-weight:800;font-size:19px;
+    letter-spacing:-1px;border:2px solid var(--gold);margin-bottom:14px}
+  header h1{font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+  header h1 .gold{color:var(--gold)}
+  header p.sub{margin-top:8px;color:#aebbd6;font-size:15px;max-width:600px}
+  .live{display:inline-flex;align-items:center;gap:7px;margin-top:16px;font-size:12.5px;font-weight:600;
+    letter-spacing:.3px;text-transform:uppercase;color:#cdd8ef;background:rgba(255,255,255,.07);
+    padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(254,190,16,.7);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(254,190,16,.6)}70%{box-shadow:0 0 0 9px rgba(254,190,16,0)}100%{box-shadow:0 0 0 0 rgba(254,190,16,0)}}
+  .hero{margin-top:-26px;background:var(--card);border-radius:18px;box-shadow:0 14px 40px rgba(12,20,40,.10);
+    border:1px solid var(--line);padding:26px 28px;display:flex;flex-wrap:wrap;align-items:center;gap:26px}
+  .hero .big{display:flex;flex-direction:column;align-items:flex-start;padding-right:26px;border-right:1px solid var(--line);min-width:170px}
+  .hero .big .num{font-size:74px;font-weight:800;line-height:.95;letter-spacing:-3px;color:var(--navy);font-variant-numeric:tabular-nums}
+  .hero .big .cap{margin-top:6px;font-size:13.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .hero .mini{display:flex;gap:30px;flex-wrap:wrap}
+  .hero .mini .m .v{font-size:30px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  .hero .mini .m .l{font-size:13px;color:var(--muted);font-weight:600}
+  .sec-h{display:flex;align-items:baseline;gap:12px;margin:46px 0 6px}
+  .sec-h h2{font-size:21px;font-weight:800;letter-spacing:-.3px}
+  .sec-h .tag{font-size:12.5px;color:var(--muted);font-weight:600}
+  .sec-sub{color:var(--muted);font-size:14.5px;margin-bottom:18px}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 16px}
+  .seg{display:inline-flex;background:#eef1f8;border:1px solid var(--line);border-radius:10px;padding:3px}
+  .seg button{border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--muted);
+    padding:7px 14px;border-radius:8px;cursor:pointer;transition:.15s}
+  .seg button.active{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(12,20,40,.12)}
+  .chart{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 8px;box-shadow:0 6px 22px rgba(12,20,40,.05)}
+  .row{display:grid;grid-template-columns:30px 34px 1fr 46px;align-items:center;gap:12px;padding:11px 16px;border-radius:11px;transition:background .15s;position:relative}
+  .row:hover{background:#f7f9ff}
+  .row .rank{color:var(--muted);font-size:13px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+  .row .flag{width:34px;height:24px;border-radius:4px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.08);background:#dde3ee}
+  .row .info{min-width:0}
+  .row .name{font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .meta{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:7px;margin-top:1px}
+  .row .pos{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+    color:var(--gold-deep);background:#fff6e0;border:1px solid #f3e3b5;padding:1px 6px;border-radius:5px}
+  .track{grid-column:3 / 4;height:9px;background:#eef1f8;border-radius:6px;margin-top:7px;overflow:hidden}
+  .fill{height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,var(--gold-deep),var(--gold));transition:width .9s cubic-bezier(.2,.7,.2,1)}
+  .fill.zero{background:#d7dce8}
+  .goals{justify-self:end;min-width:42px;text-align:center;font-weight:800;font-size:16px;color:var(--navy);
+    background:#eef1f8;border-radius:9px;padding:6px 0;font-variant-numeric:tabular-nums}
+  .goals.has{background:#eafaf3;color:var(--good)}
+  .scorer-note{grid-column:3 / 5;font-size:12px;color:var(--good);margin-top:3px;font-weight:600}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:14px 2px 0;font-size:12.5px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .sw{width:12px;height:12px;border-radius:3px}
+  .combined{margin-top:14px;background:linear-gradient(135deg,var(--navy),var(--navy-2));border-radius:18px;color:#fff;
+    padding:26px 26px 22px;box-shadow:0 14px 40px rgba(12,20,40,.16)}
+  .combined h3{font-size:17px;font-weight:800}
+  .combined h3 .gold{color:var(--gold)}
+  .csum{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px}
+  .ccard{flex:1;min-width:120px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:14px 16px}
+  .ccard .v{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+  .ccard .l{font-size:12.5px;color:#b9c6e3;margin-top:5px;font-weight:600}
+  .ccard.grand{background:var(--gold);border-color:var(--gold)}
+  .ccard.grand .v{color:var(--navy)}
+  .ccard.grand .l{color:#5a4708}
+  .formers{margin-top:20px;border-top:1px solid rgba(255,255,255,.12);padding-top:16px}
+  .formers .ftitle{font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:#aebbd6;font-weight:700;margin-bottom:12px}
+  .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+  .fitem{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:9px 12px}
+  .fitem img{width:26px;height:18px;border-radius:3px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.2)}
+  .fitem .fn{font-size:13.5px;font-weight:700;line-height:1.15}
+  .fitem .fc{font-size:11.5px;color:#aebbd6}
+  .fitem .fg{margin-left:auto;font-weight:800;font-size:15px;color:#fff;background:rgba(255,255,255,.1);border-radius:7px;padding:3px 9px;font-variant-numeric:tabular-nums}
+  .fitem .fg.has{background:var(--gold);color:var(--navy)}
+  footer{margin-top:34px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.7}
+  .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:12px 15px;font-size:13px;color:#4b5364;margin-top:16px}
+  @media(max-width:560px){
+    header h1{font-size:24px}.hero{padding:20px}
+    .hero .big{border-right:0;border-bottom:1px solid var(--line);padding-right:0;padding-bottom:16px;width:100%}
+    .hero .big .num{font-size:60px}.row{grid-template-columns:24px 30px 1fr 42px;gap:9px;padding:10px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <div class="crest">RM</div>
+    <h1>Real Madrid at the <span class="gold">2026 World Cup</span></h1>
+    <p class="sub">Tracking every goal scored by Los Blancos' players at the FIFA World Cup 2026 in the USA, Canada &amp; Mexico.</p>
+    <div class="live"><span class="dot"></span> <span id="asOfLabel">Loading…</span></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="big">
+      <div class="num" id="heroTotal">0</div>
+      <div class="cap">Goals · current squad</div>
+    </div>
+    <div class="mini">
+      <div class="m"><div class="v" id="scorerCount">0</div><div class="l">Scorers</div></div>
+      <div class="m"><div class="v" id="playerCount">0</div><div class="l">Players at the WC</div></div>
+      <div class="m"><div class="v" id="countryCount">0</div><div class="l">Nations represented</div></div>
+    </div>
+  </section>
+
+  <div class="sec-h">
+    <h2>Current Real Madrid players</h2>
+    <span class="tag" id="asOf"></span>
+  </div>
+  <p class="sec-sub">Each bar shows a current Real Madrid player, the country they represent, and their goals so far.</p>
+
+  <div class="controls">
+    <div class="seg" id="sortSeg">
+      <button data-sort="goals" class="active">Sort by goals</button>
+      <button data-sort="name">A–Z</button>
+    </div>
+    <div class="seg" id="filterSeg">
+      <button data-filter="all" class="active">All players</button>
+      <button data-filter="scorers">Scorers only</button>
+    </div>
+  </div>
+
+  <div class="chart" id="chart"></div>
+
+  <div class="legend">
+    <span><span class="sw" style="background:linear-gradient(90deg,#c9961a,#febe10)"></span> Goals scored</span>
+    <span><span class="sw" style="background:#d7dce8"></span> Yet to score</span>
+    <span><span class="pos" style="position:static">GK</span> Goalkeeper</span>
+  </div>
+
+  <div class="sec-h" style="margin-top:50px"><h2>Current + former Los Blancos</h2></div>
+  <p class="sec-sub">The grand total adds the goals of notable <em>former</em> Real Madrid players at the tournament to the current squad's tally.</p>
+
+  <section class="combined">
+    <h3>Total Real Madrid goals <span class="gold">— past &amp; present</span></h3>
+    <div class="csum">
+      <div class="ccard"><div class="v" id="curTotal">0</div><div class="l">Current players</div></div>
+      <div class="ccard"><div class="v" id="formerTotal">0</div><div class="l">Former players</div></div>
+      <div class="ccard grand"><div class="v" id="grandTotal">0</div><div class="l">Combined total</div></div>
+    </div>
+    <div class="formers">
+      <div class="ftitle">Former Real Madrid players at WC 2026</div>
+      <div class="fgrid" id="formerGrid"></div>
+    </div>
+  </section>
+
+
+  <div class="note">
+    <strong>How this updates.</strong> The numbers on this page update on their own every few hours: a scheduled job reads each World Cup match's scorers, recompiles the totals, and republishes the page — no manual steps. The date stamp at the top shows the last refresh.
+  </div>
+
+  <footer>
+    Real Madrid · FIFA World Cup 2026 goal tracker · auto-refreshing.<br>
+    Squad list via Yahoo Sports / USA TODAY · former players via The Real Champs · goals via FIFA, ESPN, Sky Sports &amp; Al Jazeera match reports.
+  </footer>
+</div>
+
+<script>
+/* Fallback data — used only if data.json fails to load. The scheduled task rewrites data.json. */
+const FALLBACK = {
+  asOf:"June 19, 2026", stage:"Group stage",
+  current:[
+    {name:"Kylian Mbappé",country:"France",code:"fr",pos:"FW",goals:2,detail:"Brace vs Senegal (66', 90+6')"},
+    {name:"Vinícius Júnior",country:"Brazil",code:"br",pos:"FW",goals:1,detail:"vs Morocco (32')"},
+    {name:"Jude Bellingham",country:"England",code:"gb-eng",pos:"MF",goals:1,detail:"vs Croatia (47')"},
+    {name:"Federico Valverde",country:"Uruguay",code:"uy",pos:"MF",goals:0,detail:""},
+    {name:"Aurélien Tchouaméni",country:"France",code:"fr",pos:"MF",goals:0,detail:""},
+    {name:"Antonio Rüdiger",country:"Germany",code:"de",pos:"DF",goals:0,detail:""},
+    {name:"Arda Güler",country:"Turkey",code:"tr",pos:"MF",goals:0,detail:""},
+    {name:"Brahim Díaz",country:"Morocco",code:"ma",pos:"FW",goals:0,detail:""},
+    {name:"David Alaba",country:"Austria",code:"at",pos:"DF",goals:0,detail:""},
+    {name:"Thibaut Courtois",country:"Belgium",code:"be",pos:"GK",goals:0,detail:""}
+  ],
+  former:[
+    {name:"Cristiano Ronaldo",country:"Portugal",code:"pt",goals:0},
+    {name:"Luka Modrić",country:"Croatia",code:"hr",goals:0},
+    {name:"Achraf Hakimi",country:"Morocco",code:"ma",goals:0},
+    {name:"Casemiro",country:"Brazil",code:"br",goals:0},
+    {name:"James Rodríguez",country:"Colombia",code:"co",goals:0},
+    {name:"Martin Ødegaard",country:"Norway",code:"no",goals:0}
+  ]
+};
+
+let CURRENT=[], FORMER=[], maxGoals=1, sortMode="goals", filterMode="all";
+const flag = c => `https://flagcdn.com/w40/${c}.png`;
+const sum = a => a.reduce((t,p)=>t+(+p.goals||0),0);
+
+function countUp(el,target,dur=900){
+  const start=performance.now();
+  (function step(now){const t=Math.min(1,(now-start)/dur);
+    el.textContent=Math.round(target*(1-Math.pow(1-t,3)));
+    if(t<1)requestAnimationFrame(step);})(start);
+}
+function renderChart(){
+  let list=CURRENT.slice();
+  if(filterMode==="scorers")list=list.filter(p=>p.goals>0);
+  list.sort(sortMode==="goals"
+    ?(a,b)=>b.goals-a.goals||a.name.localeCompare(b.name)
+    :(a,b)=>a.name.localeCompare(b.name));
+  const chart=document.getElementById("chart");chart.innerHTML="";
+  if(!list.length){chart.innerHTML='<div style="padding:26px;text-align:center;color:#6b7385">No players to show.</div>';return;}
+  list.forEach((p,i)=>{
+    const row=document.createElement("div");row.className="row";
+    const pct=p.goals/maxGoals*100;
+    row.innerHTML=`<div class="rank">${i+1}</div>
+      <img class="flag" src="${flag(p.code)}" alt="${p.country}" loading="lazy">
+      <div class="info"><div class="name">${p.name}</div>
+        <div class="meta">${p.country} <span class="pos">${p.pos}</span></div></div>
+      <div class="goals ${p.goals>0?'has':''}">${p.goals}</div>
+      <div class="track"><div class="fill ${p.goals>0?'':'zero'}"></div></div>
+      ${p.detail?`<div class="scorer-note">⚽ ${p.detail}</div>`:''}`;
+    chart.appendChild(row);
+    requestAnimationFrame(()=>{row.querySelector(".fill").style.width=(p.goals>0?Math.max(pct,8):100)+"%";});
+  });
+}
+function renderFormer(){
+  const g=document.getElementById("formerGrid");g.innerHTML="";
+  FORMER.slice().sort((a,b)=>b.goals-a.goals).forEach(p=>{
+    const d=document.createElement("div");d.className="fitem";
+    d.innerHTML=`<img src="${flag(p.code)}" alt="${p.country}">
+      <div><div class="fn">${p.name}</div><div class="fc">${p.country}</div></div>
+      <div class="fg ${p.goals>0?'has':''}">${p.goals}</div>`;
+    g.appendChild(d);
+  });
+}
+function boot(data){
+  CURRENT=data.current||[];FORMER=data.former||[];
+  maxGoals=Math.max(1,...CURRENT.map(p=>+p.goals||0));
+  const curTotal=sum(CURRENT),formerTotal=sum(FORMER);
+  const scorers=CURRENT.filter(p=>p.goals>0).length;
+  const nations=new Set(CURRENT.map(p=>p.country)).size;
+  document.getElementById("asOfLabel").textContent=`As of ${data.asOf||"—"}${data.stage?" · "+data.stage:""}`;
+  document.getElementById("asOf").textContent=`${CURRENT.length} players · ${nations} nations`;
+  countUp(document.getElementById("heroTotal"),curTotal);
+  countUp(document.getElementById("curTotal"),curTotal);
+  countUp(document.getElementById("formerTotal"),formerTotal);
+  countUp(document.getElementById("grandTotal"),curTotal+formerTotal);
+  document.getElementById("scorerCount").textContent=scorers;
+  document.getElementById("playerCount").textContent=CURRENT.length;
+  document.getElementById("countryCount").textContent=nations;
+  renderChart();renderFormer();
+}
+document.getElementById("sortSeg").addEventListener("click",e=>{
+  if(e.target.dataset.sort){sortMode=e.target.dataset.sort;
+    [...e.currentTarget.children].forEach(b=>b.classList.toggle("active",b===e.target));renderChart();}
+});
+document.getElementById("filterSeg").addEventListener("click",e=>{
+  if(e.target.dataset.filter){filterMode=e.target.dataset.filter;
+    [...e.currentTarget.children].forEach(b=>b.classList.toggle("active",b===e.target));renderChart();}
+});
+fetch("data.json?ts="+Date.now()).then(r=>r.ok?r.json():Promise.reject()).then(boot).catch(()=>boot(FALLBACK));
+</script>
+</body>
+</html>

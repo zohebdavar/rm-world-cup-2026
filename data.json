@@ -1,0 +1,25 @@
+{
+  "asOf": "June 19, 2026",
+  "stage": "Group stage",
+  "updated": "2026-06-19T09:00:00Z",
+  "current": [
+    {"name": "Kylian Mbappé",       "country": "France",  "code": "fr",     "pos": "FW", "goals": 2, "detail": "Brace vs Senegal (66', 90+6')"},
+    {"name": "Vinícius Júnior",     "country": "Brazil",  "code": "br",     "pos": "FW", "goals": 1, "detail": "vs Morocco (32')"},
+    {"name": "Jude Bellingham",     "country": "England", "code": "gb-eng", "pos": "MF", "goals": 1, "detail": "vs Croatia (47')"},
+    {"name": "Federico Valverde",   "country": "Uruguay", "code": "uy",     "pos": "MF", "goals": 0, "detail": ""},
+    {"name": "Aurélien Tchouaméni", "country": "France",  "code": "fr",     "pos": "MF", "goals": 0, "detail": ""},
+    {"name": "Antonio Rüdiger",     "country": "Germany", "code": "de",     "pos": "DF", "goals": 0, "detail": ""},
+    {"name": "Arda Güler",          "country": "Turkey",  "code": "tr",     "pos": "MF", "goals": 0, "detail": ""},
+    {"name": "Brahim Díaz",         "country": "Morocco", "code": "ma",     "pos": "FW", "goals": 0, "detail": ""},
+    {"name": "David Alaba",         "country": "Austria", "code": "at",     "pos": "DF", "goals": 0, "detail": ""},
+    {"name": "Thibaut Courtois",    "country": "Belgium", "code": "be",     "pos": "GK", "goals": 0, "detail": ""}
+  ],
+  "former": [
+    {"name": "Cristiano Ronaldo", "country": "Portugal", "code": "pt", "goals": 0},
+    {"name": "Luka Modrić",       "country": "Croatia",  "code": "hr", "goals": 0},
+    {"name": "Achraf Hakimi",     "country": "Morocco",  "code": "ma", "goals": 0},
+    {"name": "Casemiro",          "country": "Brazil",   "code": "br", "goals": 0},
+    {"name": "James Rodríguez",   "country": "Colombia", "code": "co", "goals": 0},
+    {"name": "Martin Ødegaard",   "country": "Norway",   "code": "no", "goals": 0}
+  ]
+}
