@@ -26,6 +26,8 @@ jobs:
           node-version: "20"
 
       - name: Update data.json from live match feed
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
         run: node scripts/refresh.mjs
 
       - name: Commit if changed
