@@ -1,15 +1,15 @@
 {
   "asOf": "June 20, 2026",
   "stage": "Auto-updated",
-  "updated": "2026-06-20T15:57:29.026Z",
+  "updated": "2026-06-20T16:16:14.564Z",
   "current": [
     {
       "name": "Kylian Mbappé",
       "country": "France",
       "code": "fr",
-      "goals": 1,
+      "goals": 2,
       "pos": "FW",
-      "detail": "vs Senegal 66'"
+      "detail": ""
     },
     {
       "name": "Vinícius Júnior",
@@ -17,7 +17,7 @@
       "code": "br",
       "goals": 2,
       "pos": "FW",
-      "detail": "vs Morocco 32', vs Haiti 45'"
+      "detail": ""
     },
     {
       "name": "Jude Bellingham",
@@ -25,7 +25,7 @@
       "code": "gb-eng",
       "goals": 1,
       "pos": "MF",
-      "detail": "vs Croatia 47'"
+      "detail": ""
     },
     {
       "name": "Federico Valverde",
