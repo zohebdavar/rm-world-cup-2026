@@ -1,7 +1,7 @@
 {
-  "asOf": "June 23, 2026",
+  "asOf": "June 24, 2026",
   "stage": "Auto-updated",
-  "updated": "2026-06-23T19:46:13.360Z",
+  "updated": "2026-06-24T01:52:11.934Z",
   "current": [
     {
       "name": "Kylian Mbappé",
@@ -89,7 +89,7 @@
       "name": "Cristiano Ronaldo",
       "country": "Portugal",
       "code": "pt",
-      "goals": 0,
+      "goals": 2,
       "detail": ""
     },
     {
