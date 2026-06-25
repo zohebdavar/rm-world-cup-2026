@@ -1,7 +1,7 @@
 {
-  "asOf": "June 24, 2026",
+  "asOf": "June 25, 2026",
   "stage": "Auto-updated",
-  "updated": "2026-06-24T19:22:23.069Z",
+  "updated": "2026-06-25T01:56:17.579Z",
   "current": [
     {
       "name": "Kylian Mbappé",
@@ -15,7 +15,7 @@
       "name": "Vinícius Júnior",
       "country": "Brazil",
       "code": "br",
-      "goals": 2,
+      "goals": 4,
       "pos": "FW",
       "detail": ""
     },
