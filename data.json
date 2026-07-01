@@ -1,13 +1,13 @@
 {
-  "asOf": "June 30, 2026",
+  "asOf": "July 1, 2026",
   "stage": "Auto-updated",
-  "updated": "2026-06-30T19:27:12.540Z",
+  "updated": "2026-07-01T02:02:31.174Z",
   "current": [
     {
       "name": "Kylian Mbappé",
       "country": "France",
       "code": "fr",
-      "goals": 4,
+      "goals": 6,
       "pos": "FW",
       "detail": ""
     },
