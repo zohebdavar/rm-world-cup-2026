@@ -1,7 +1,7 @@
 {
-  "asOf": "July 11, 2026",
+  "asOf": "July 12, 2026",
   "stage": "Auto-updated",
-  "updated": "2026-07-11T18:40:07.674Z",
+  "updated": "2026-07-12T01:17:52.095Z",
   "current": [
     {
       "name": "Kylian Mbappé",
@@ -23,7 +23,7 @@
       "name": "Jude Bellingham",
       "country": "England",
       "code": "gb-eng",
-      "goals": 4,
+      "goals": 6,
       "pos": "MF",
       "detail": ""
     },
